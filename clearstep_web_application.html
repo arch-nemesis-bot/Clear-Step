@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClearStep | Privacy-First Cognitive Support System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Fira+Code:wght@400;500;600&display=swap">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Space Grotesk', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        bgDark: '#0a051b',
+                        cardDark: '#120a2e',
+                        borderDark: '#261454',
+                        lavenderLight: '#e9d5ff',
+                        lavenderGlow: '#c4b5fd',
+                        lavenderMid: '#a78bfa',
+                        lavenderDeep: '#7c3aed',
+                    },
+                    boxShadow: {
+                        'glow-sm': '0 0 15px rgba(196, 181, 253, 0.2)',
+                        'glow-md': '0 0 30px rgba(167, 139, 250, 0.3)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: #0a051b;
+            color: #f3e8ff;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(196, 181, 253, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .glass-panel {
+            background: rgba(18, 10, 46, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(196, 181, 253, 0.18);
+        }
+
+        .glass-card {
+            background: rgba(24, 14, 58, 0.55);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(196, 181, 253, 0.12);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(196, 181, 253, 0.35);
+            background: rgba(30, 18, 70, 0.65);
+        }
+
+        /* ClearStep Diamond Star Logo Clip Paths */
+        .star-mark {
+            clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%);
+        }
+
+        .star-mark-outer {
+            clip-path: polygon(50% 0%, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0% 50%, 37% 37%);
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a051b; }
+        ::-webkit-scrollbar-thumb { background: #261454; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #7c3aed; }
+    </style>
+</head>
+<body class="min-h-full flex flex-col font-sans antialiased text-purple-100">
+
+    <header class="sticky top-0 z-50 border-b border-purple-900/30 bg-[#0a051b]/90 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            
+            <!-- ClearStep Brand Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('overview')">
+                <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-lavenderDeep to-lavenderLight star-mark-outer opacity-80"></div>
+                    <div class="relative w-8 h-8 bg-gradient-to-tr from-lavenderLight via-purple-200 to-white star-mark flex items-center justify-center shadow-glow-sm">
+                        <span class="text-[9px] font-heading font-black text-bgDark tracking-tighter">CS</span>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-heading font-bold text-xl sm:text-2xl tracking-wider text-white leading-none">clear<span class="text-lavenderGlow font-light">step</span></span>
+                    <span class="text-[9px] text-purple-300/60 font-mono tracking-widest uppercase mt-1">Cognitive Support Engine</span>
+                </div>
+            </div>
+
+            <!-- Tab Navigation Links -->
+            <nav class="hidden md:flex items-center space-x-1 glass-panel px-3 py-1.5 rounded-full">
+                <button onclick="switchTab('overview')" id="nav-overview" class="tab-btn px-4 py-2 rounded-full text-xs font-semibold bg-lavenderDeep text-white shadow-glow-sm transition">
+                    <i class="fa-solid fa-house mr-1.5"></i> Overview
+                </button>
+                <button onclick="switchTab('configurator')" id="nav-configurator" class="tab-btn px-4 py-2 rounded-full text-xs font-medium text-purple-200/80 hover:text-white transition">
+                    <i class="fa-solid fa-list-check mr-1.5"></i> Routine Setup
+                </button>
+                <button onclick="switchTab('hardware')" id="nav-hardware" class="tab-btn px-4 py-2 rounded-full text-xs font-medium text-purple-200/80 hover:text-white transition">
+                    <i class="fa-solid fa-microchip mr-1.5"></i> Hardware &amp; Specs
+                </button>
+                <button onclick="switchTab('safety')" id="nav-safety" class="tab-btn px-4 py-2 rounded-full text-xs font-medium text-purple-200/80 hover:text-white transition">
+                    <i class="fa-solid fa-shield-halved mr-1.5"></i> Safety Protocols
+                </button>
+            </nav>
+
+            <div class="hidden sm:flex items-center space-x-2 text-xs font-mono text-purple-300/80 glass-panel px-3.5 py-1.5 rounded-full">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>Air-Gapped Architecture</span>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Sub-bar -->
+        <div class="md:hidden border-t border-purple-900/40 bg-bgDark px-4 py-2.5 flex items-center justify-between text-xs font-medium overflow-x-auto gap-2">
+            <button onclick="switchTab('overview')" id="mobile-nav-overview" class="py-1 px-3 rounded-lg text-white font-semibold bg-lavenderDeep whitespace-nowrap">Overview</button>
+            <button onclick="switchTab('configurator')" id="mobile-nav-configurator" class="py-1 px-3 rounded-lg text-purple-300 whitespace-nowrap">Routine Setup</button>
+            <button onclick="switchTab('hardware')" id="mobile-nav-hardware" class="py-1 px-3 rounded-lg text-purple-300 whitespace-nowrap">Hardware</button>
+            <button onclick="switchTab('safety')" id="mobile-nav-safety" class="py-1 px-3 rounded-lg text-purple-300 whitespace-nowrap">Safety Protocols</button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ================= PAGE 1: OVERVIEW / PRODUCT SHOWCASE ================= -->
+        <div id="view-overview" class="subpage-view space-y-16">
+            
+            <!-- Hero Banner -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center pt-4">
+                <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                    <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-purple-950/80 border border-purple-500/30 text-purple-200 text-xs font-medium">
+                        <i class="fa-solid fa-shield text-lavenderGlow"></i>
+                        <span>Local Vision Cognitive Assistance System</span>
+                    </div>
+
+                    <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.12]">
+                        ClearStep <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-lavenderLight to-lavenderGlow">Privacy-First</span> Task Guidance
+                    </h1>
+
+                    <p class="text-base sm:text-lg text-purple-200/80 max-w-2xl font-light leading-relaxed mx-auto lg:mx-0">
+                        An air-gapped system combining local laptop computer vision (YOLO/MediaPipe) with a dedicated ESP32 edge display module to assist individuals experiencing memory loss or cognitive overload during daily routines.
+                    </p>
+
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                        <button onclick="switchTab('configurator')" class="px-6 py-3.5 rounded-xl bg-lavenderDeep hover:bg-purple-600 text-white font-semibold text-sm shadow-glow-md transition flex items-center space-x-2">
+                            <span>Customize Routine Checklist</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                        <button onclick="switchTab('hardware')" class="px-6 py-3.5 rounded-xl glass-panel text-purple-200 font-semibold text-sm hover:bg-purple-900/40 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-microchip text-lavenderGlow"></i>
+                            <span>View Hardware Diagram</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- OLED Interactive Screen Prototype Showcase -->
+                <div class="lg:col-span-5 w-full">
+                    <div class="glass-panel p-6 rounded-3xl border border-purple-400/30 space-y-4">
+                        
+                        <div class="flex items-center justify-between pb-3 border-b border-purple-900/60">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
+                                <span class="text-xs font-mono text-purple-200 font-semibold uppercase tracking-wider">ESP32 SSD1306 Display Preview</span>
+                            </div>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800">128x64 Monochrome OLED</span>
+                        </div>
+
+                        <!-- Actual OLED Formatting Match -->
+                        <div class="bg-[#04010a] rounded-2xl p-5 border-2 border-purple-900/80 font-mono text-purple-200 min-h-[220px] flex flex-col justify-between shadow-inner">
+                            <div>
+                                <div class="flex justify-between items-center text-xs text-purple-400 border-b border-purple-900/60 pb-2.5 mb-3">
+                                    <span id="oled-demo-title" class="font-bold text-lavenderLight">Morning</span>
+                                    <span id="oled-demo-counter" class="bg-purple-950 px-2 py-0.5 rounded text-purple-300">1/3</span>
+                                </div>
+
+                                <div id="oled-demo-steps" class="space-y-2 text-xs">
+                                    <!-- Populated by JavaScript according to exact spec -->
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-2 border-t border-purple-900/50 text-[10px] text-purple-400/80 flex items-center justify-between">
+                                <span>[x]done [&gt;]next [!]pending</span>
+                                <span id="oled-demo-shutter-state" class="text-emerald-400 font-semibold"><i class="fa-solid fa-eye"></i> Shutter Open</span>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Controls to Test OLED States -->
+                        <div class="grid grid-cols-2 gap-2.5 pt-1">
+                            <button onclick="demoNextStep()" class="px-3 py-2.5 rounded-xl bg-purple-900/50 hover:bg-purple-800/80 border border-purple-500/30 text-xs font-mono text-purple-200 transition flex items-center justify-center space-x-1.5">
+                                <i class="fa-solid fa-hand text-lavenderGlow"></i>
+                                <span>Simulate Hand Dwell</span>
+                            </button>
+                            <button onclick="demoResetStep()" class="px-3 py-2.5 rounded-xl bg-purple-900/50 hover:bg-purple-800/80 border border-purple-500/30 text-xs font-mono text-purple-200 transition flex items-center justify-center space-x-1.5">
+                                <i class="fa-solid fa-rotate-left text-lavenderGlow"></i>
+                                <span>Reset Checklist</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- Core Problem & Solution Grid -->
+            <section class="space-y-6 pt-6">
+                <div class="text-center max-w-2xl mx-auto space-y-2">
+                    <span class="text-xs font-mono text-lavenderGlow uppercase tracking-widest">Problem &amp; System Architecture</span>
+                    <h2 class="font-heading text-2xl sm:text-3xl font-bold text-white">How ClearStep Assists Daily Routines</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-card p-6 rounded-3xl space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-900/60 text-lavenderLight flex items-center justify-center text-lg border border-purple-500/30">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <h3 class="font-heading font-bold text-base text-white">Cognitive Disruption</h3>
+                        <p class="text-xs text-purple-200/70 leading-relaxed font-light">
+                            Mid-task distractions can cause users with memory impairment to forget which step they were performing (e.g., whether pills were taken or toothpaste applied).
+                        </p>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-3xl space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-900/60 text-lavenderLight flex items-center justify-center text-lg border border-purple-500/30">
+                            <i class="fa-solid fa-video-slash"></i>
+                        </div>
+                        <h3 class="font-heading font-bold text-base text-white">Local Vision Tracking</h3>
+                        <p class="text-xs text-purple-200/70 leading-relaxed font-light">
+                            A local laptop webcam runs hand-tracking (MediaPipe) and object identification (YOLO-World/COCO). Video frames remain in local RAM and are never saved or sent online.
+                        </p>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-3xl space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-900/60 text-lavenderLight flex items-center justify-center text-lg border border-purple-500/30">
+                            <i class="fa-solid fa-laptop-code"></i>
+                        </div>
+                        <h3 class="font-heading font-bold text-base text-white">Dedicated ESP32 Edge Device</h3>
+                        <p class="text-xs text-purple-200/70 leading-relaxed font-light">
+                            Receives state commands over USB Serial to update the OLED checklist display, operate the privacy servo shutter, and trigger subtle audio-visual cues.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- ================= PAGE 2: ROUTINE SETUP / CONFIGURATOR ================= -->
+        <div id="view-configurator" class="subpage-view hidden space-y-8">
+            
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-purple-900/40">
+                <div>
+                    <span class="text-xs font-mono text-lavenderGlow uppercase tracking-widest">Python Script Config Setup</span>
+                    <h2 class="font-heading text-3xl font-bold text-white mt-1">Routine Setup</h2>
+                </div>
+                <p class="text-xs text-purple-300/70 max-w-md">
+                    Configure step sequences and custom target object tags used by the local vision processing pipeline.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Left: Routine Editor -->
+                <div class="lg:col-span-7 glass-panel p-6 sm:p-8 rounded-3xl space-y-6">
+                    
+                    <div>
+                        <label class="text-xs font-mono text-purple-300 uppercase block mb-3">Select Preset Sequence</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                            <button onclick="loadRoutinePreset('morning')" id="preset-btn-morning" class="px-3 py-2.5 rounded-xl bg-lavenderDeep text-white font-semibold text-xs border border-purple-400/40 transition">Morning Routine</button>
+                            <button onclick="loadRoutinePreset('medicine')" id="preset-btn-medicine" class="px-3 py-2.5 rounded-xl glass-card text-purple-300 font-medium text-xs hover:text-white transition">Medicine Time</button>
+                            <button onclick="loadRoutinePreset('tea')" id="preset-btn-tea" class="px-3 py-2.5 rounded-xl glass-card text-purple-300 font-medium text-xs hover:text-white transition">Tea Preparation</button>
+                        </div>
+                    </div>
+
+                    <!-- Step Items List -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-mono text-purple-300 uppercase">Checklist Steps &amp; Vision Tags</label>
+                            <span id="config-step-count" class="text-[11px] text-purple-400 font-mono">3 Items</span>
+                        </div>
+
+                        <div id="config-items-container" class="space-y-2.5">
+                            <!-- Populated dynamically -->
+                        </div>
+
+                        <!-- Add Step Inputs -->
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-2">
+                            <input type="text" id="new-item-label" placeholder="Step label (e.g. Eyeglasses)" class="sm:col-span-7 bg-purple-950/70 border border-purple-800/60 rounded-xl px-3.5 py-2 text-xs text-purple-100 placeholder-purple-400/50 focus:outline-none focus:border-purple-400">
+                            <input type="text" id="new-item-tag" placeholder="YOLO Tag (e.g. glasses)" class="sm:col-span-3 bg-purple-950/70 border border-purple-800/60 rounded-xl px-3.5 py-2 text-xs text-purple-100 placeholder-purple-400/50 focus:outline-none focus:border-purple-400 font-mono">
+                            <button onclick="addConfigItem()" class="sm:col-span-2 px-3 py-2 rounded-xl bg-lavenderDeep hover:bg-purple-600 text-white text-xs font-semibold transition flex items-center justify-center">
+                                <i class="fa-solid fa-plus mr-1"></i> Add
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right: Generated Python Dictionary Preview -->
+                <div class="lg:col-span-5 glass-panel p-6 sm:p-8 rounded-3xl space-y-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-heading font-bold text-sm text-white flex items-center">
+                                <i class="fa-solid fa-code text-lavenderGlow mr-2"></i>
+                                Generated Python Config (`routine_config.py`)
+                            </h3>
+                            <button onclick="copyPythonConfig()" class="px-2.5 py-1 rounded bg-purple-900/60 hover:bg-purple-800 text-[11px] text-purple-200 font-mono transition">
+                                <i class="fa-solid fa-copy mr-1"></i> Copy
+                            </button>
+                        </div>
+
+                        <pre id="python-config-code" class="bg-[#04010a] p-4 rounded-2xl border border-purple-900/80 text-[11px] font-mono text-purple-300 overflow-x-auto leading-relaxed max-h-72">
+# Generated ClearStep Routine
+ROUTINE_CONFIG = {
+    "title": "Morning",
+    "steps": [
+        {"label": "Toothbrush", "tag": "toothbrush"},
+        {"label": "Water cup", "tag": "cup"},
+        {"label": "Medicine", "tag": "bottle"}
+    ]
+}
+                        </pre>
+                    </div>
+
+                    <div class="pt-3 border-t border-purple-900/50 text-[11px] text-purple-400/70">
+                        <i class="fa-solid fa-circle-info mr-1 text-lavenderGlow"></i>
+                        Paste this structure into your local Python runtime script to update vision object targets.
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================= PAGE 3: HARDWARE & ARCHITECTURE ================= -->
+        <div id="view-hardware" class="subpage-view hidden space-y-8">
+            
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-purple-900/40">
+                <div>
+                    <span class="text-xs font-mono text-lavenderGlow uppercase tracking-widest">Components &amp; Wiring Specs</span>
+                    <h2 class="font-heading text-3xl font-bold text-white mt-1">Hardware &amp; Architecture</h2>
+                </div>
+                <div class="text-xs font-mono text-purple-300 glass-panel px-3 py-1.5 rounded-full">
+                    USB Serial Protocol @ 115200 Baud
+                </div>
+            </div>
+
+            <!-- Specs Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Component Specs List -->
+                <div class="glass-panel p-6 sm:p-8 rounded-3xl space-y-5">
+                    <h3 class="font-heading font-bold text-lg text-white border-b border-purple-900/60 pb-3 flex items-center">
+                        <i class="fa-solid fa-microchip text-lavenderGlow mr-2"></i>
+                        Hardware Components Breakdown
+                    </h3>
+
+                    <div class="space-y-4 text-xs">
+                        <div class="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-800/40 space-y-1">
+                            <div class="flex justify-between font-bold text-white">
+                                <span>Host Computer (Vision Processing)</span>
+                                <span class="font-mono text-lavenderGlow">Laptop (AMD Ryzen 7)</span>
+                            </div>
+                            <p class="text-purple-300/70">Runs Python 3 OpenCV, MediaPipe Hand Landmark tracking, and YOLO object detection model locally in memory.</p>
+                        </div>
+
+                        <div class="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-800/40 space-y-1">
+                            <div class="flex justify-between font-bold text-white">
+                                <span>Microcontroller Edge Module</span>
+                                <span class="font-mono text-lavenderGlow">ESP32 Development Board</span>
+                            </div>
+                            <p class="text-purple-300/70">Connected via USB Serial. Manages display rendering, hardware interrupts, and mechanical shutter actuation.</p>
+                        </div>
+
+                        <div class="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-800/40 space-y-1">
+                            <div class="flex justify-between font-bold text-white">
+                                <span>Monochrome Display</span>
+                                <span class="font-mono text-lavenderGlow">0.96" SSD1306 OLED (I2C)</span>
+                            </div>
+                            <p class="text-purple-300/70">High-contrast 128x64 display. Connected to ESP32 I2C pins (SDA: GPIO 21, SCL: GPIO 22).</p>
+                        </div>
+
+                        <div class="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-800/40 space-y-1">
+                            <div class="flex justify-between font-bold text-white">
+                                <span>Actuators &amp; Physical I/O</span>
+                                <span class="font-mono text-lavenderGlow">Servo, Button, LED, Buzzer</span>
+                            </div>
+                            <p class="text-purple-300/70">Micro Servo shutter (GPIO 13), Override Push Button (GPIO 12), Status LED (GPIO 14), and Piezo Buzzer (GPIO 27).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prototype Limitations & Real Specs -->
+                <div class="glass-panel p-6 sm:p-8 rounded-3xl space-y-5 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-heading font-bold text-lg text-white border-b border-purple-900/60 pb-3 flex items-center">
+                            <i class="fa-solid fa-triangle-exclamation text-lavenderGlow mr-2"></i>
+                            Real Technical Limitations &amp; Specs
+                        </h3>
+
+                        <div class="space-y-3.5 text-xs text-purple-200/80 pt-2">
+                            <div class="flex items-start space-x-2.5">
+                                <i class="fa-solid fa-check text-lavenderGlow mt-0.5"></i>
+                                <div>
+                                    <strong class="text-white">COCO Class Constraints:</strong> Standard COCO-pretrained models are limited to 80 general categories (e.g. cup, bottle, toothbrush). Custom items require fine-tuning or zero-shot models like YOLO-World.
+                                </div>
+                            </div>
+
+                            <div class="flex items-start space-x-2.5">
+                                <i class="fa-solid fa-check text-lavenderGlow mt-0.5"></i>
+                                <div>
+                                    <strong class="text-white">Hand-Object Overlap Confirmation:</strong> Step verification requires sustained spatial overlap between the MediaPipe hand bounding box and target object for a minimum dwell duration (~5 consecutive frames).
+                                </div>
+                            </div>
+
+                            <div class="flex items-start space-x-2.5">
+                                <i class="fa-solid fa-check text-lavenderGlow mt-0.5"></i>
+                                <div>
+                                    <strong class="text-white">Air-Gapped Privacy Guarantee:</strong> No video frames leave local RAM or host memory. Frame buffers are immediately overwritten after landmark processing.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-purple-950/60 border border-purple-800/60 text-xs text-purple-300/80 space-y-1">
+                        <strong class="text-white block font-semibold">Prototype Status Notice:</strong>
+                        <p class="font-light leading-relaxed">
+                            This web documentation reflects the physical hackathon setup. Future iterations focus on embedding lightweight quantized vision models directly onto standalone micro-NPUs.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================= PAGE 4: IMPROVISATIONS & SAFETY PROTOCOLS ================= -->
+        <div id="view-safety" class="subpage-view hidden space-y-8">
+            
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-purple-900/40">
+                <div>
+                    <span class="text-xs font-mono text-lavenderGlow uppercase tracking-widest">Built-In Safety Engineering</span>
+                    <h2 class="font-heading text-3xl font-bold text-white mt-1">Improvisations &amp; Safety Protocols</h2>
+                </div>
+                <p class="text-xs text-purple-300/70 max-w-md">
+                    Six fundamental safeguards built to prevent false positives, preserve privacy, and eliminate frustration.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <div class="glass-card p-6 rounded-3xl space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-900/60 text-lavenderLight flex items-center justify-center text-lg border border-purple-500/30">
+                        <i class="fa-solid fa-fingerprint"></i>
+                    </div>
+                    <h3 class="font-heading font-bold text-base text-white">1. Zero-Failure Tap</h3>
+                    <p class="text-xs text-purple-200/70 leading-relaxed font-light">
+                        Physical push button override on the ESP32. If an object is occluded or vision detection fails, pressing the button manually checks off the active item without blocking progress.
+                    </p>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-900/60 text-lavenderLight flex items-center justify-center text-lg border border-purple-500/30">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <h3 class="font-heading font-bold text-base text-white">2. Calm-Cue Guidance</h3>
+                    <p class="text-xs text-purple-200/70 leading-relaxed font-light">
+                        Uses non-alarming soft LED pulses and low-frequency piezo chimes to guide attention back to skipped steps without triggering anxiety or confusion.
+                    </p>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-900/60 text-lavenderLight flex items-center justify-center text-lg border border-purple-500/30">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h3 class="font-heading font-bold text-base text-white">3. Opti-Privacy Lock</h3>
+                    <p class="text-xs text-purple-200/70 leading-relaxed font-light">
+                        A micro-servo motor rotates a physical shutter panel in front of the camera lens when no routines are actively running, guaranteeing hardware-level privacy.
+                    </p>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-900/60 text-lavenderLight flex items-center justify-center text-lg border border-purple-500/30">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </div>
+                    <h3 class="font-heading font-bold text-base text-white">4. Context Rewind</h3>
+                    <p class="text-xs text-purple-200/70 leading-relaxed font-light">
+                        Pressing and holding the override button allows the user to backtrack to previous checklist steps if an item was accidentally picked up or moved prematurely.
+                    </p>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-900/60 text-lavenderLight flex items-center justify-center text-lg border border-purple-500/30">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <h3 class="font-heading font-bold text-base text-white">5. Shadow-Step Buffer</h3>
+                    <p class="text-xs text-purple-200/70 leading-relaxed font-light">
+                        Requires multi-frame bounding-box overlap before confirming interaction, preventing accidental triggers when hands briefly pass over objects.
+                    </p>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-900/60 text-lavenderLight flex items-center justify-center text-lg border border-purple-500/30">
+                        <i class="fa-solid fa-heartbeat"></i>
+                    </div>
+                    <h3 class="font-heading font-bold text-base text-white">6. Watchdog Heartbeat</h3>
+                    <p class="text-xs text-purple-200/70 leading-relaxed font-light">
+                        Serial heartbeat ping sent between Python host and ESP32. If connection drops, the OLED screen clearly displays a reconnection warning.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="border-t border-purple-900/40 bg-bgDark py-10 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="relative w-7 h-7 flex items-center justify-center">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-lavenderDeep to-lavenderLight star-mark-outer opacity-80"></div>
+                        <div class="relative w-5 h-5 bg-gradient-to-tr from-lavenderLight to-purple-200 star-mark flex items-center justify-center">
+                            <span class="text-[7px] font-heading font-black text-bgDark">CS</span>
+                        </div>
+                    </div>
+                    <span class="font-heading font-bold text-lg text-white">clear<span class="text-lavenderGlow font-light">step</span></span>
+                </div>
+
+                <div class="text-xs text-purple-300/60 font-mono">
+                    Privacy-First Cognitive Support System
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-900/50 text-center text-xs text-purple-300/70 leading-relaxed max-w-3xl mx-auto">
+                <strong class="text-lavenderLight font-semibold">Prototype Notice:</strong> This website documents the ClearStep hardware and software project. All specifications accurately reflect the project architecture.
+            </div>
+
+            <div class="text-center text-[11px] text-purple-300/60 font-mono tracking-wider">
+                &copy; 2026 Team E.D.I.T.H. All rights reserved.
+            </div>
+
+        </div>
+    </footer>
+
+    <script>
+        // Routine Data Model
+        const routinesData = {
+            morning: {
+                title: "Morning",
+                steps: [
+                    { label: "Toothbrush", tag: "toothbrush" },
+                    { label: "Water cup", tag: "cup" },
+                    { label: "Medicine", tag: "bottle" }
+                ]
+            },
+            medicine: {
+                title: "Medicine",
+                steps: [
+                    { label: "Pill Box", tag: "box" },
+                    { label: "Water Glass", tag: "cup" },
+                    { label: "Water Intake", tag: "bottle" }
+                ]
+            },
+            tea: {
+                title: "Tea Prep",
+                steps: [
+                    { label: "Kettle", tag: "kettle" },
+                    { label: "Mug", tag: "cup" },
+                    { label: "Tea Bag", tag: "packet" }
+                ]
+            }
+        };
+
+        let activeRoutineKey = 'morning';
+        let demoCurrentStepIndex = 1; // 0: done, 1: active, 2: pending
+
+        // Subpage Tab Switching
+        function switchTab(tabId) {
+            const views = document.querySelectorAll('.subpage-view');
+            views.forEach(v => v.classList.add('hidden'));
+
+            const target = document.getElementById(`view-${tabId}`);
+            if (target) target.classList.remove('hidden');
+
+            const navKeys = ['overview', 'configurator', 'hardware', 'safety'];
+            navKeys.forEach(key => {
+                const desktopBtn = document.getElementById(`nav-${key}`);
+                const mobileBtn = document.getElementById(`mobile-nav-${key}`);
+
+                if (key === tabId) {
+                    if (desktopBtn) desktopBtn.className = "tab-btn px-4 py-2 rounded-full text-xs font-semibold bg-lavenderDeep text-white shadow-glow-sm transition";
+                    if (mobileBtn) mobileBtn.className = "py-1 px-3 rounded-lg text-white font-semibold bg-lavenderDeep whitespace-nowrap";
+                } else {
+                    if (desktopBtn) desktopBtn.className = "tab-btn px-4 py-2 rounded-full text-xs font-medium text-purple-200/80 hover:text-white transition";
+                    if (mobileBtn) mobileBtn.className = "py-1 px-3 rounded-lg text-purple-300 whitespace-nowrap";
+                }
+            });
+
+            if (tabId === 'configurator') {
+                renderConfiguratorUI();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Render OLED Screen Demo strictly following spec:
+        // Format: Morning 1/3, [x] Toothbrush, [>] Water cup, [!] Medicine
+        function renderOledDemo() {
+            const routine = routinesData[activeRoutineKey];
+            document.getElementById('oled-demo-title').innerText = routine.title;
+            
+            const displayStepNum = Math.min(demoCurrentStepIndex + 1, routine.steps.length);
+            document.getElementById('oled-demo-counter').innerText = `${displayStepNum}/${routine.steps.length}`;
+
+            const container = document.getElementById('oled-demo-steps');
+            container.innerHTML = '';
+
+            routine.steps.forEach((stepObj, idx) => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between font-mono text-xs";
+
+                if (idx < demoCurrentStepIndex) {
+                    // Step Done: [x]
+                    row.className += " text-purple-400/60";
+                    row.innerHTML = `<span>[x] ${stepObj.label}</span><span class="text-[10px] font-sans">Done</span>`;
+                } else if (idx === demoCurrentStepIndex) {
+                    // Active Step: [>]
+                    row.className += " text-lavenderLight font-bold bg-purple-900/40 px-2 py-0.5 rounded border border-purple-500/40";
+                    row.innerHTML = `<span>[&gt;] ${stepObj.label}</span><span class="text-[10px] text-purple-300 font-sans animate-pulse">Active</span>`;
+                } else {
+                    // Pending Step: [!]
+                    row.className += " text-purple-300/80";
+                    row.innerHTML = `<span>[!] ${stepObj.label}</span><span class="text-[10px] font-sans">Pending</span>`;
+                }
+
+                container.appendChild(row);
+            });
+        }
+
+        function demoNextStep() {
+            const stepsCount = routinesData[activeRoutineKey].steps.length;
+            demoCurrentStepIndex = (demoCurrentStepIndex + 1) % stepsCount;
+            renderOledDemo();
+        }
+
+        function demoResetStep() {
+            demoCurrentStepIndex = 0;
+            renderOledDemo();
+        }
+
+        // Routine Configurator UI Handlers
+        function loadRoutinePreset(key) {
+            activeRoutineKey = key;
+            demoCurrentStepIndex = 0;
+
+            ['morning', 'medicine', 'tea'].forEach(k => {
+                const btn = document.getElementById(`preset-btn-${k}`);
+                if (btn) {
+                    if (k === key) {
+                        btn.className = "px-3 py-2.5 rounded-xl bg-lavenderDeep text-white font-semibold text-xs border border-purple-400/40 transition";
+                    } else {
+                        btn.className = "px-3 py-2.5 rounded-xl glass-card text-purple-300 font-medium text-xs hover:text-white transition";
+                    }
+                }
+            });
+
+            renderConfiguratorUI();
+            renderOledDemo();
+        }
+
+        function renderConfiguratorUI() {
+            const routine = routinesData[activeRoutineKey];
+            document.getElementById('config-step-count').innerText = `${routine.steps.length} Items`;
+
+            const container = document.getElementById('config-items-container');
+            container.innerHTML = '';
+
+            routine.steps.forEach((stepObj, idx) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = "flex items-center justify-between p-3 rounded-xl bg-purple-950/50 border border-purple-800/40 text-xs";
+                itemDiv.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-purple-400 font-mono">${idx + 1}.</span>
+                        <span class="text-white font-medium">${stepObj.label}</span>
+                        <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-purple-900/80 text-lavenderGlow border border-purple-700/50">tag: ${stepObj.tag}</span>
+                    </div>
+                    <button onclick="removeConfigItem(${idx})" class="text-purple-400 hover:text-rose-400 transition"><i class="fa-solid fa-trash"></i></button>
+                `;
+                container.appendChild(itemDiv);
+            });
+
+            updatePythonConfigCode();
+        }
+
+        function addConfigItem() {
+            const labelInput = document.getElementById('new-item-label');
+            const tagInput = document.getElementById('new-item-tag');
+
+            const label = labelInput.value.trim();
+            const tag = tagInput.value.trim() || label.toLowerCase();
+
+            if (label) {
+                routinesData[activeRoutineKey].steps.push({ label, tag });
+                labelInput.value = '';
+                tagInput.value = '';
+                renderConfiguratorUI();
+                renderOledDemo();
+            }
+        }
+
+        function removeConfigItem(index) {
+            routinesData[activeRoutineKey].steps.splice(index, 1);
+            renderConfiguratorUI();
+            renderOledDemo();
+        }
+
+        function updatePythonConfigCode() {
+            const routine = routinesData[activeRoutineKey];
+            const stepsFormatted = routine.steps.map(s => `        {"label": "${s.label}", "tag": "${s.tag}"}`).join(",\n");
+            
+            const codeText = `# ClearStep Target Config\nROUTINE_CONFIG = {\n    "title": "${routine.title}",\n    "steps": [\n${stepsFormatted}\n    ]\n}`;
+            document.getElementById('python-config-code').innerText = codeText;
+        }
+
+        function copyPythonConfig() {
+            const codeText = document.getElementById('python-config-code').innerText;
+            navigator.clipboard.writeText(codeText).then(() => {
+                alert("Python config copied to clipboard!");
+            });
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderOledDemo();
+        });
+    </script>
+</body>
+</html>
